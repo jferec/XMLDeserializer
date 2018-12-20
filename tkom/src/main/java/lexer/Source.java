@@ -1,14 +1,15 @@
 package lexer;
 
+import static com.google.common.base.Ascii.*;
+
+import com.google.common.base.Ascii;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class Source {
-  private static char EOT = 4;
   private InputStream inputStream;
-  private int position = 0;
 
   public Source(String filePath) throws IOException {
     File inputFile = new File(filePath);
@@ -21,9 +22,5 @@ public class Source {
       return EOT;
     }
     return (char) next;
-  }
-
-  public int getPosition() {
-    return position;
   }
 }

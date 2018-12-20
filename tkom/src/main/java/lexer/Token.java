@@ -9,11 +9,11 @@ public class Token {
     if (t == null) {
       throw new IllegalArgumentException("TokenType is absent.");
     }
-    if (t.equals(TokenType.Letter) && v == null) {
-      throw new IllegalArgumentException("Letter Token must have a value");
+    if (t.equals(TokenType.Char) && v == null) {
+      throw new IllegalArgumentException("Char Token must have a value");
     }
-    if (!t.equals(TokenType.Letter) && v != null) {
-      throw new IllegalArgumentException("Token other than Letter must not have any value");
+    if (!t.equals(TokenType.Char) && v != null) {
+      throw new IllegalArgumentException("Token other than Char must not have any value");
     }
     this.type = t;
     this.value = v;

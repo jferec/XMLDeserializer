@@ -33,7 +33,7 @@ public class Lexer {
     return curr;
   }
 
-  private Token getNextToken() throws IOException {
+  public Token getNextToken() throws IOException {
     if (!hasNextChar()) {
       return null;
     }
@@ -47,6 +47,8 @@ public class Lexer {
         case '/':
           popChar();
           return new Token(TokenType.ClosingTagBegin);
+        case '-':
+          popChar();
         default:
           return new Token(TokenType.OpeningTagBegin);
       }
@@ -55,9 +57,9 @@ public class Lexer {
       return new Token(TokenType.PrologEnd);
     } else if (first == '/' && second == '>') {
       popChar();
-      return new Token(TokenType.ClosingTagEnd);
+      return new Token(TokenType.SelfClosingTag);
     } else if (first == '>') {
-      return new Token(TokenType.OpeningTagEnd);
+      return new Token(TokenType.TagEnd);
     } else if (first == '=') {
       return new Token(TokenType.Equals);
     } else if (first == '"') {
@@ -67,7 +69,7 @@ public class Lexer {
     } else if (isWhiteCharacter(first)) {
       return new Token(TokenType.WhiteSpace);
     } else {
-      return new Token(TokenType.Letter, first);
+      return new Token(TokenType.Char, first);
     }
   }
 
@@ -75,7 +77,7 @@ public class Lexer {
     return next != EOT;
   }
 
-  private static boolean isWhiteCharacter(char c) {
+  protected static boolean isWhiteCharacter(char c) {
     return WHITE_CHARACTERS.contains(c);
   }
 }
