@@ -50,6 +50,12 @@ public class Lexer {
         default:
           return new Token(TokenType.OpeningTagBegin);
       }
+    } else if (first == '?' && second == '>') {
+      popChar();
+      return new Token(TokenType.PrologEnd);
+    } else if (first == '/' && second == '>') {
+      popChar();
+      return new Token(TokenType.ClosingTagEnd);
     } else if (first == '>') {
       return new Token(TokenType.OpeningTagEnd);
     } else if (first == '=') {
