@@ -66,10 +66,8 @@ public class Lexer {
       return new Token(TokenType.SingleQuotationMark);
     } else if (isWhiteCharacter(first)) {
       return new Token(TokenType.WhiteSpace);
-    } else if (Character.isLetterOrDigit(first)) {
-      return new Token(TokenType.Letter, first);
     } else {
-      return new Token(TokenType.Unknown);
+      return new Token(TokenType.Letter, first);
     }
   }
 
