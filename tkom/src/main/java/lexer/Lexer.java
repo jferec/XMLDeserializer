@@ -14,7 +14,8 @@ public class Lexer {
 
   public Lexer(String filePath) {
     try {
-      src = new Source(filePath);
+      this.src = new Source(filePath);
+      this.next = src.next();
     } catch (IOException e) {
       throw new RuntimeException("File under given path failed to load.");
     }
@@ -22,14 +23,52 @@ public class Lexer {
 
   public void skipWhiteSpaces() throws IOException {
     while (next != EOT && isWhiteCharacter(next)) {
-      popNextChar();
+      popChar();
     }
   }
 
-  private char popNextChar() throws IOException {
+  private char popChar() throws IOException {
     char curr = next;
     next = src.next();
     return curr;
+  }
+
+  private Token getNextToken() throws IOException {
+    if (!hasNextChar()) {
+      return null;
+    }
+    char first = popChar();
+    char second = next;
+    if (first == '<') {
+      switch (second) {
+        case '?':
+          popChar();
+          return new Token(TokenType.PrologBegin);
+        case '/':
+          popChar();
+          return new Token(TokenType.ClosingTagBegin);
+        default:
+          return new Token(TokenType.OpeningTagBegin);
+      }
+    } else if (first == '>') {
+      return new Token(TokenType.OpeningTagEnd);
+    } else if (first == '=') {
+      return new Token(TokenType.Equals);
+    } else if (first == '"') {
+      return new Token(TokenType.DoubleQuotationMark);
+    } else if (first == '\'') {
+      return new Token(TokenType.SingleQuotationMark);
+    } else if (isWhiteCharacter(first)) {
+      return new Token(TokenType.WhiteSpace);
+    } else if (Character.isLetterOrDigit(first)) {
+      return new Token(TokenType.Letter, first);
+    } else {
+      return new Token(TokenType.Unknown);
+    }
+  }
+
+  private boolean hasNextChar() {
+    return next != EOT;
   }
 
   private static boolean isWhiteCharacter(char c) {
