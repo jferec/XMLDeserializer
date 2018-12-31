@@ -39,7 +39,6 @@ public class LexerTest {
     checkString(lexer, "message");
     assertEquals(TokenType.TagEnd, lexer.getNextToken().getType());
     assertEquals(TokenType.WhiteSpace, lexer.getNextToken().getType());
-    assertEquals(TokenType.WhiteSpace, lexer.getNextToken().getType());
     assertEquals(TokenType.OpeningTagBegin, lexer.getNextToken().getType());
     checkString(lexer, "raz");
     assertEquals(TokenType.SelfClosingTag, lexer.getNextToken().getType());
