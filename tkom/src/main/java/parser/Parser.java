@@ -95,8 +95,8 @@ public class Parser {
   }
 
   private void parseProlog() throws IOException, XMLParseException {
-    Token curr = lexer.getNextToken();
-    if (curr == null || curr.getType() != TokenType.PrologBegin) {
+    getNextToken();
+    if (!tokenTypeEquals(TokenType.PrologBegin)) {
       throw new XMLParseException("Prolog is missing.");
     }
     skipWhiteScapes();
@@ -104,9 +104,11 @@ public class Parser {
     if (!xml.equals("xml")) {
       throw new XMLParseException("XML Prolog has invalid format");
     }
-    skipWhiteScapes();
-
-
+    parseAttributes();
+    if(tokenTypeEquals(TokenType.PrologEnd)){
+      throw new XMLParseException("Prolog is missing closing '?>'");
+    }
+    getNextToken();
   }
 
   private List<XMLAttribute> parseAttributes() throws IOException, XMLParseException {
@@ -116,6 +118,30 @@ public class Parser {
       attributes.add(parseAttribute());
     }
     return attributes;
+  }
+
+  private XMLNode parseNode() throws IOException, XMLParseException {
+    getNextToken();
+    Token curr = token;
+    if(!curr.getType().equals(TokenType.OpeningTagBegin)){
+      throw new XMLParseException("Opening Tag expected.");
+    }
+    String elementName = parseCharSequence();
+    skipWhiteScapes();
+    List<XMLAttribute> attributes = parseAttributes();
+    getNextToken();
+    if(tokenTypeEquals(TokenType.SelfClosingTag)){
+      getNextToken();
+      skipWhiteScapes();
+      XMLNode node = new XMLNode(elementName, null);
+      node.setAttributes(attributes);
+      return node;
+    }
+    if(tokenTypeEquals(TokenType.TagEnd)){
+
+    }
+    //todo
+    return null;
   }
 
 
