@@ -1,13 +1,13 @@
 package parser;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import javax.management.modelmbean.XMLParseException;
 
 import lexer.Lexer;
@@ -26,7 +26,17 @@ public class Parser {
       .put("&apos", '\'')
       .build();
 
+  private static ImmutableMap<TagType, Set<TagType>> ALLOWED_TAG_TYPES = ImmutableMap.<TagType, Set<TagType>>builder()
+      .put(TagType.Start, Sets.newHashSet(TagType.Open))
+      .put(TagType.Open, Sets.newHashSet(TagType.SelfClosing, TagType.Value, TagType.Close))
+      .put(TagType.Close, Sets.newHashSet(TagType.SelfClosing, TagType.Open))
+      .put(TagType.SelfClosing, Sets.newHashSet(TagType.Open, TagType.Close, TagType.SelfClosing))
+      .put(TagType.Value, Sets.<TagType>newHashSet(TagType.Close))
+      .build();
+
+
   private final Lexer lexer;
+  Stack<XMLNode> nodes = new Stack<>();
   private XMLFile xmlFile = new XMLFile();
   private Token token = null;
 
@@ -34,8 +44,9 @@ public class Parser {
     this.lexer = lexer;
   }
 
-  public void parseFile() {
-
+  private void parse() throws IOException, XMLParseException {
+    parseProlog();
+    xmlFile.setRoot(parseNodes());
   }
 
   private boolean tokenTypeEquals(TokenType type) {
@@ -50,6 +61,7 @@ public class Parser {
       charSequence.append(token.getValue());
       getNextToken();
     }
+    skipWhiteScapes();
     return charSequence.toString();
   }
 
@@ -66,6 +78,7 @@ public class Parser {
       }
       getNextToken();
     }
+    skipWhiteScapes();
     return charSequence.toString().trim();
   }
 
@@ -79,6 +92,8 @@ public class Parser {
       specialChar.append(token.getValue());
       if (specialChar.length() >= MIN_SPECIAL_CHAR_LENGTH && SPECIAL_CHARS
           .containsKey(specialChar.toString())) {
+        getNextToken();
+        skipWhiteScapes();
         return SPECIAL_CHARS.get(specialChar.toString());
       }
     }
@@ -105,10 +120,11 @@ public class Parser {
       throw new XMLParseException("XML Prolog has invalid format");
     }
     parseAttributes();
-    if(tokenTypeEquals(TokenType.PrologEnd)){
+    if (tokenTypeEquals(TokenType.PrologEnd)) {
       throw new XMLParseException("Prolog is missing closing '?>'");
     }
     getNextToken();
+    skipWhiteScapes();
   }
 
   private List<XMLAttribute> parseAttributes() throws IOException, XMLParseException {
@@ -120,28 +136,106 @@ public class Parser {
     return attributes;
   }
 
-  private XMLNode parseNode() throws IOException, XMLParseException {
-    getNextToken();
-    Token curr = token;
-    if(!curr.getType().equals(TokenType.OpeningTagBegin)){
-      throw new XMLParseException("Opening Tag expected.");
-    }
-    String elementName = parseCharSequence();
+  private XMLNode parseNodes() throws IOException, XMLParseException {
+    XMLNode root = null;
+    TagType lastTag = TagType.Start;
+    TagType currTag = null;
+    XMLNode parent = null;
     skipWhiteScapes();
-    List<XMLAttribute> attributes = parseAttributes();
-    getNextToken();
-    if(tokenTypeEquals(TokenType.SelfClosingTag)){
-      getNextToken();
-      skipWhiteScapes();
-      XMLNode node = new XMLNode(elementName, null);
-      node.setAttributes(attributes);
-      return node;
+    while (token != null) {
+      switch (token.getType()) {
+        case OpeningTagBegin: {
+          XMLNode next = parseOpeningTag();
+          if (root == null) {
+            root = next;
+          }
+          currTag = (next.isSelfClosing()) ? TagType.SelfClosing : TagType.Open;
+          if (!isTransitionAllowed(lastTag, currTag)) {
+            throw new XMLParseException("Transition not allowed");
+          }
+          parent = nodes.peek();
+          if (parent != null) {
+            parent.addChild(next);
+          }
+          if (!next.isSelfClosing()) {
+            nodes.push(next);
+          }
+        }
+        break;
+        case ClosingTagBegin: {
+          currTag = TagType.Close;
+          if (!isTransitionAllowed(lastTag, currTag)) {
+            throw new XMLParseException("Closing tag is not allowed here");
+          }
+          if (nodes.isEmpty()) {
+            throw new XMLParseException("Trying to close tag that wasn't open");
+          }
+          XMLNode node = nodes.pop();
+          parseClosingTag(node);
+        }
+        break;
+        case Char: {
+          currTag = TagType.Value;
+          if (!isTransitionAllowed(lastTag, currTag)) {
+            throw new XMLParseException("Closing tag is not allowed here");
+          }
+          if (nodes.isEmpty()) {
+            throw new XMLParseException("Value is not inside the tag.");
+          }
+          parent = nodes.peek();
+          skipWhiteScapes();
+          String value = parseCharSequenceWithWhiteSpaces();
+          parent.setValue(value);
+          getNextToken();
+        }
+        break;
+      }
+      lastTag = currTag;
     }
-    if(tokenTypeEquals(TokenType.TagEnd)){
-
-    }
-    //todo
     return null;
+  }
+
+  /**
+   * Current token is '<'
+   */
+  private XMLNode parseOpeningTag() throws IOException, XMLParseException {
+    getNextToken();
+    String nodeName = parseCharSequence();
+    skipWhiteScapes();
+    List<XMLAttribute> nodeAttributes = parseAttributes();
+    getNextToken();
+    skipWhiteScapes();
+    XMLNode next = new XMLNode()
+        .setName(nodeName)
+        .setAttributes(nodeAttributes);
+    switch (token.getType()) {
+      case TagEnd:
+        return next;
+      case SelfClosingTag:
+        return next.setSelfClosing(true);
+      default:
+        throw new XMLParseException("The opening tag is not closed properly");
+    }
+  }
+
+  /**
+   * Current doc is '</'
+   */
+  private void parseClosingTag(XMLNode node) throws IOException, XMLParseException {
+    getNextToken();
+    skipWhiteScapes();
+    String name = parseCharSequence();
+    if (!name.equals(node.getName())) {
+      throw new XMLParseException("The closing tag names is not matching opening tag name.");
+    }
+    skipWhiteScapes();
+    getNextToken();
+    if (!tokenTypeEquals(TokenType.TagEnd)) {
+      throw new XMLParseException("The closing tag is not closed properly.");
+    }
+    skipWhiteScapes();
+    getNextToken();
+    skipWhiteScapes();
   }
 
 
@@ -172,7 +266,13 @@ public class Parser {
         : !tokenTypeEquals(TokenType.DoubleQuotationMark)) {
       throw new XMLParseException("Closing quotation mark is expected after attribute's value.");
     }
+    getNextToken();
     skipWhiteScapes();
     return new XMLAttribute(attributeName, attributeValue);
+  }
+
+
+  private static boolean isTransitionAllowed(TagType last, TagType curr) {
+    return ALLOWED_TAG_TYPES.get(last).contains(curr);
   }
 }

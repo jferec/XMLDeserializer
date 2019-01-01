@@ -6,15 +6,11 @@ import java.util.Map;
 
 public class XMLNode {
 
-  private final String name;
-  private final String value;
+  private String name;
+  private String value;
   private Map<String, XMLNode> children = new HashMap<>();
   private Map<String, XMLAttribute> attributes = new HashMap<>();
-
-  XMLNode(String name, String value) {
-    this.name = name;
-    this.value = value;
-  }
+  private boolean isSelfClosing = false;
 
   public String getName() {
     return name;
@@ -32,15 +28,33 @@ public class XMLNode {
     return attributes;
   }
 
-  public void setAttributes(List<XMLAttribute> attributes){
-    for(XMLAttribute attr : attributes){
+  public XMLNode setAttributes(List<XMLAttribute> attributes) {
+    for (XMLAttribute attr : attributes) {
       this.attributes.put(attr.getName(), attr);
     }
+    return this;
   }
 
-  public void setChildren(List<XMLNode> children){
-    for(XMLNode child : children){
-      this.children.put(child.name, child);
-    }
+  public void addChild(XMLNode child) {
+    this.children.put(child.name, child);
+  }
+
+  public XMLNode setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public XMLNode setValue(String value) {
+    this.value = value;
+    return this;
+  }
+
+  public boolean isSelfClosing() {
+    return isSelfClosing;
+  }
+
+  public XMLNode setSelfClosing(boolean selfClosing) {
+    isSelfClosing = selfClosing;
+    return this;
   }
 }
