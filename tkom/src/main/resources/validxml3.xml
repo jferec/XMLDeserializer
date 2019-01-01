@@ -2,6 +2,7 @@
 <alfa>
   <beta attr1="abc" attr2="def">val</beta>
   <gamma>
-    <delta></delta>
+    <delta benis="k"></delta>
+    <halko beniss = "peniz" />
   </gamma>
 </alfa>

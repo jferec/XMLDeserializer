@@ -28,7 +28,8 @@ public class Parser {
 
   private static ImmutableMap<TagType, Set<TagType>> ALLOWED_TAG_TYPES = ImmutableMap.<TagType, Set<TagType>>builder()
       .put(TagType.Start, Sets.newHashSet(TagType.Open))
-      .put(TagType.Open, Sets.newHashSet(TagType.SelfClosing, TagType.Value, TagType.Close, TagType.Open))
+      .put(TagType.Open,
+          Sets.newHashSet(TagType.SelfClosing, TagType.Value, TagType.Close, TagType.Open))
       .put(TagType.Close, Sets.newHashSet(TagType.SelfClosing, TagType.Open, TagType.Close))
       .put(TagType.SelfClosing, Sets.newHashSet(TagType.Open, TagType.Close, TagType.SelfClosing))
       .put(TagType.Value, Sets.<TagType>newHashSet(TagType.Close))
@@ -105,7 +106,7 @@ public class Parser {
 
 
   private void skipWhiteScapes() throws IOException {
-    while (token != null && tokenTypeEquals(TokenType.WhiteSpace)){
+    while (token != null && tokenTypeEquals(TokenType.WhiteSpace)) {
       getNextToken();
     }
   }
@@ -199,6 +200,9 @@ public class Parser {
         break;
       }
       lastTag = currTag;
+    }
+    if(!nodes.isEmpty()){
+      throw new XMLParseException("One or more tags are not closed.");
     }
     return root;
   }
