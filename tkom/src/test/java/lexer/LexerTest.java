@@ -9,7 +9,7 @@ public class LexerTest {
 
   @Test
   public void testValidXML() throws IOException {
-    Lexer lexer = new Lexer("src/main/resources/validxml.xml");
+    Lexer lexer = Lexer.of("src/main/resources/validxml.xml");
     assertEquals(TokenType.PrologBegin, lexer.getNextToken().getType());
     String xml = "xml";
     for (int i = 0; i < xml.length(); i++) {
@@ -30,7 +30,7 @@ public class LexerTest {
 
   @Test
   public void testValidXMLTagsWithValue() throws IOException {
-    Lexer lexer = new Lexer("src/main/resources/validxml2.xml");
+    Lexer lexer = Lexer.of("src/main/resources/validxml2.xml");
     assertEquals(TokenType.OpeningTagBegin, lexer.getNextToken().getType());
     checkString(lexer, "message");
     assertEquals(TokenType.TagEnd, lexer.getNextToken().getType());

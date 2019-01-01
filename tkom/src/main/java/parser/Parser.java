@@ -28,8 +28,8 @@ public class Parser {
 
   private static ImmutableMap<TagType, Set<TagType>> ALLOWED_TAG_TYPES = ImmutableMap.<TagType, Set<TagType>>builder()
       .put(TagType.Start, Sets.newHashSet(TagType.Open))
-      .put(TagType.Open, Sets.newHashSet(TagType.SelfClosing, TagType.Value, TagType.Close))
-      .put(TagType.Close, Sets.newHashSet(TagType.SelfClosing, TagType.Open))
+      .put(TagType.Open, Sets.newHashSet(TagType.SelfClosing, TagType.Value, TagType.Close, TagType.Open))
+      .put(TagType.Close, Sets.newHashSet(TagType.SelfClosing, TagType.Open, TagType.Close))
       .put(TagType.SelfClosing, Sets.newHashSet(TagType.Open, TagType.Close, TagType.SelfClosing))
       .put(TagType.Value, Sets.<TagType>newHashSet(TagType.Close))
       .build();
@@ -44,9 +44,14 @@ public class Parser {
     this.lexer = lexer;
   }
 
-  private void parse() throws IOException, XMLParseException {
+  public XMLFile run() throws IOException, XMLParseException {
+    return parse();
+  }
+
+  private XMLFile parse() throws IOException, XMLParseException {
     parseProlog();
     xmlFile.setRoot(parseNodes());
+    return xmlFile;
   }
 
   private boolean tokenTypeEquals(TokenType type) {
@@ -56,7 +61,6 @@ public class Parser {
   private String parseCharSequence() throws IOException, XMLParseException {
     skipWhiteScapes();
     StringBuilder charSequence = new StringBuilder();
-    getNextToken();
     while (tokenTypeEquals(TokenType.Char)) {
       charSequence.append(token.getValue());
       getNextToken();
@@ -68,7 +72,6 @@ public class Parser {
   private String parseCharSequenceWithWhiteSpaces() throws IOException, XMLParseException {
     skipWhiteScapes();
     StringBuilder charSequence = new StringBuilder();
-    getNextToken();
     while (tokenTypeEquals(TokenType.Char) || tokenTypeEquals(TokenType.WhiteSpace)) {
       char curr = token.getValue();
       if (curr == '&') {
@@ -102,7 +105,9 @@ public class Parser {
 
 
   private void skipWhiteScapes() throws IOException {
-    lexer.skipWhiteSpaces();
+    while (token != null && tokenTypeEquals(TokenType.WhiteSpace)){
+      getNextToken();
+    }
   }
 
   private void getNextToken() throws IOException {
@@ -114,13 +119,15 @@ public class Parser {
     if (!tokenTypeEquals(TokenType.PrologBegin)) {
       throw new XMLParseException("Prolog is missing.");
     }
+    getNextToken();
     skipWhiteScapes();
     String xml = parseCharSequence();
     if (!xml.equals("xml")) {
       throw new XMLParseException("XML Prolog has invalid format");
     }
+    skipWhiteScapes();
     parseAttributes();
-    if (tokenTypeEquals(TokenType.PrologEnd)) {
+    if (!tokenTypeEquals(TokenType.PrologEnd)) {
       throw new XMLParseException("Prolog is missing closing '?>'");
     }
     getNextToken();
@@ -153,13 +160,15 @@ public class Parser {
           if (!isTransitionAllowed(lastTag, currTag)) {
             throw new XMLParseException("Transition not allowed");
           }
-          parent = nodes.peek();
+          parent = nodes.isEmpty() ? null : nodes.peek();
           if (parent != null) {
             parent.addChild(next);
           }
           if (!next.isSelfClosing()) {
             nodes.push(next);
           }
+          getNextToken();
+          skipWhiteScapes();
         }
         break;
         case ClosingTagBegin: {
@@ -186,13 +195,12 @@ public class Parser {
           skipWhiteScapes();
           String value = parseCharSequenceWithWhiteSpaces();
           parent.setValue(value);
-          getNextToken();
         }
         break;
       }
       lastTag = currTag;
     }
-    return null;
+    return root;
   }
 
   /**
@@ -203,7 +211,6 @@ public class Parser {
     String nodeName = parseCharSequence();
     skipWhiteScapes();
     List<XMLAttribute> nodeAttributes = parseAttributes();
-    getNextToken();
     skipWhiteScapes();
     XMLNode next = new XMLNode()
         .setName(nodeName)
@@ -219,7 +226,7 @@ public class Parser {
   }
 
   /**
-   * Current doc is '</'
+   * Current token is '</'
    */
   private void parseClosingTag(XMLNode node) throws IOException, XMLParseException {
     getNextToken();
@@ -229,11 +236,9 @@ public class Parser {
       throw new XMLParseException("The closing tag names is not matching opening tag name.");
     }
     skipWhiteScapes();
-    getNextToken();
     if (!tokenTypeEquals(TokenType.TagEnd)) {
       throw new XMLParseException("The closing tag is not closed properly.");
     }
-    skipWhiteScapes();
     getNextToken();
     skipWhiteScapes();
   }
@@ -242,13 +247,12 @@ public class Parser {
   private XMLAttribute parseAttribute() throws IOException, XMLParseException {
     String attributeName = parseCharSequence();
     skipWhiteScapes();
-    getNextToken();
     if (!token.getType().equals(TokenType.Equals)) {
       throw new XMLParseException(
           String.format("Attribute %s has no \'=\' sign after it's name", attributeName));
     }
-    skipWhiteScapes();
     getNextToken();
+    skipWhiteScapes();
     boolean singleQuotationMark;
     if (tokenTypeEquals(TokenType.SingleQuotationMark)) {
       singleQuotationMark = true;
@@ -259,9 +263,9 @@ public class Parser {
           String
               .format("Attribute %s has no quotation mark sign after  \'=\' sign", attributeName));
     }
+    getNextToken();
     skipWhiteScapes();
     String attributeValue = parseCharSequenceWithWhiteSpaces();
-    getNextToken();
     if ((singleQuotationMark) ? !tokenTypeEquals(TokenType.SingleQuotationMark)
         : !tokenTypeEquals(TokenType.DoubleQuotationMark)) {
       throw new XMLParseException("Closing quotation mark is expected after attribute's value.");

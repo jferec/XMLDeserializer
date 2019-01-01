@@ -12,7 +12,11 @@ public class Lexer {
   private Source src;
   private char next;
 
-  public Lexer(String filePath) {
+  public static Lexer of(String filePath){
+    return new Lexer(filePath);
+  }
+
+  private Lexer(String filePath) {
     try {
       this.src = new Source(filePath);
       this.next = src.next();
