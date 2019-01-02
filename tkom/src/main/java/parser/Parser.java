@@ -60,11 +60,13 @@ public class Parser {
   }
 
   private String parseCharSequence() throws IOException, XMLParseException {
-    skipWhiteScapes();
     StringBuilder charSequence = new StringBuilder();
     while (tokenTypeEquals(TokenType.Char)) {
       charSequence.append(token.getValue());
       getNextToken();
+    }
+    if(charSequence.length() == 0){
+      throw new XMLParseException("Char sequence not found");
     }
     skipWhiteScapes();
     return charSequence.toString();
@@ -121,7 +123,7 @@ public class Parser {
       throw new XMLParseException("Prolog is missing.");
     }
     getNextToken();
-    skipWhiteScapes();
+    //Don't skip whitespaces here - nonempty CharSequence expected!
     String xml = parseCharSequence();
     if (!xml.equals("xml")) {
       throw new XMLParseException("XML Prolog has invalid format");
@@ -212,6 +214,7 @@ public class Parser {
    */
   private XMLNode parseOpeningTag() throws IOException, XMLParseException {
     getNextToken();
+    //Don't skip whitespaces here - nonempty CharSequence expected!
     String nodeName = parseCharSequence();
     skipWhiteScapes();
     List<XMLAttribute> nodeAttributes = parseAttributes();
@@ -234,7 +237,7 @@ public class Parser {
    */
   private void parseClosingTag(XMLNode node) throws IOException, XMLParseException {
     getNextToken();
-    skipWhiteScapes();
+    //Don't skip whitespaces here - nonempty CharSequence expected!
     String name = parseCharSequence();
     if (!name.equals(node.getName())) {
       throw new XMLParseException("The closing tag names is not matching opening tag name.");
