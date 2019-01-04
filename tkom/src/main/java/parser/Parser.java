@@ -15,7 +15,6 @@ import lexer.Token;
 import lexer.TokenType;
 
 public class Parser {
-  //todo FIX ROOT ELEMENT - CLOSING ROOT ELEMENT MUST NOT ALLOW OPENING ANY MORE TAGS
   private static int MAX_SPECIAL_CHAR_LENGTH = 6;
   private static int MIN_SPECIAL_CHAR_LENGTH = 4;
   private static ImmutableMap<String, Character> SPECIAL_CHARS = ImmutableMap.<String, Character>builder()
