@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<alfa>
+  <beta attr1="abc" attr2="def"> 8val</beta>
+  <gamma>
+    <delta  attr2="val3"></delta>
+    <halko attr4= "val4" />
+  </gamma>
+</alfa>
+<fi></fi>

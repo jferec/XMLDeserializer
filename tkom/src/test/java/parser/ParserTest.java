@@ -69,4 +69,11 @@ public class ParserTest {
     Parser parser = new Parser(lexer);
     Assertions.assertThrows(XMLParseException.class, parser::run);
   }
+
+  @Test
+  public void openingTagAfterClosingRoot() throws IOException, XMLParseException{
+    Lexer lexer = Lexer.of("src/main/resources/invalidxml4.xml");
+    Parser parser = new Parser(lexer);
+    Assertions.assertThrows(XMLParseException.class, parser::run);
+  }
 }

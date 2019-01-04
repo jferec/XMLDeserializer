@@ -30,9 +30,10 @@ public class Parser {
       .put(TagType.Start, Sets.newHashSet(TagType.Open))
       .put(TagType.Open,
           Sets.newHashSet(TagType.SelfClosing, TagType.Value, TagType.Close, TagType.Open))
-      .put(TagType.Close, Sets.newHashSet(TagType.SelfClosing, TagType.Open, TagType.Close))
-      .put(TagType.SelfClosing, Sets.newHashSet(TagType.Open, TagType.Close, TagType.SelfClosing))
+      .put(TagType.Close, Sets.newHashSet(TagType.SelfClosing, TagType.Open, TagType.Close, TagType.End))
+      .put(TagType.SelfClosing, Sets.newHashSet(TagType.Open, TagType.Close, TagType.SelfClosing, TagType.End))
       .put(TagType.Value, Sets.<TagType>newHashSet(TagType.Close))
+      .put(TagType.End, Sets.newHashSet())
       .build();
 
 
@@ -175,12 +176,16 @@ public class Parser {
         }
         break;
         case ClosingTagBegin: {
-          currTag = TagType.Close;
-          if (!isTransitionAllowed(lastTag, currTag)) {
-            throw new XMLParseException("Closing tag is not allowed here");
-          }
           if (nodes.isEmpty()) {
             throw new XMLParseException("Trying to close tag that wasn't open");
+          }
+          if(nodes.size() == 1){
+            currTag = TagType.End;
+          } else{
+            currTag = TagType.Close;
+          }
+          if (!isTransitionAllowed(lastTag, currTag)) {
+            throw new XMLParseException("Closing tag is not allowed here");
           }
           XMLNode node = nodes.pop();
           parseClosingTag(node);
