@@ -1,23 +1,24 @@
 package parser;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class XMLNode {
 
   private String name;
-  private String value;
-  private Map<String, XMLNode> children = new HashMap<>();
-  private Map<String, XMLAttribute> attributes = new HashMap<>();
+  private List<String> values = new ArrayList<>();
+  private LinkedHashMap<String, XMLNode> children = new LinkedHashMap<>();
+  private Map<String, XMLAttribute> attributes = new LinkedHashMap<>();
   private boolean isSelfClosing = false;
 
   public String getName() {
     return name;
   }
 
-  public String getValue() {
-    return value;
+  public List<String> getValues() {
+    return values;
   }
 
   public Map<String, XMLNode> getChildren() {
@@ -44,8 +45,8 @@ public class XMLNode {
     return this;
   }
 
-  public XMLNode setValue(String value) {
-    this.value = value;
+  public XMLNode addValue(String value) {
+    this.values.add(value);
     return this;
   }
 

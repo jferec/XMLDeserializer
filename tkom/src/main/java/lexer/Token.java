@@ -1,33 +1,33 @@
 package lexer;
 
+import javax.management.modelmbean.XMLParseException;
+
 public class Token {
 
   private TokenType type;
-  private Character value;
+  private String value;
 
-  public Token(TokenType t, Character v) {
-    if (t == null) {
-      throw new IllegalArgumentException("TokenType is absent.");
-    }
-    if (t.equals(TokenType.Char) && v == null) {
-      throw new IllegalArgumentException("Char Token must have a value");
-    }
-    if (!t.equals(TokenType.Char) && v != null) {
-      throw new IllegalArgumentException("Token other than Char must not have any value");
+  public Token(TokenType t, String v) throws XMLParseException {
+    if ((!t.equals(TokenType.WhiteSpace) && !t.equals(TokenType.CharSequence) && !t
+        .equals(TokenType.String))) {
+      throw new XMLParseException(
+          String.format("Token of type %s, should have value assigned", t.name()));
     }
     this.type = t;
     this.value = v;
   }
 
-  public Token(TokenType t){
-    this(t, null);
+  public Token(TokenType t) {
+
+    this.type = t;
+    this.value = null;
   }
 
   public TokenType getType() {
     return type;
   }
 
-  public Character getValue() {
+  public String getValue() {
     return value;
   }
 }
