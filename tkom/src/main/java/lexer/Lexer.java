@@ -13,7 +13,7 @@ public class Lexer {
   private static int MAX_SPECIAL_CHAR_LENGTH = 6;
   private static int MIN_SPECIAL_CHAR_LENGTH = 4;
   private static Set<Character> WHITE_CHARACTERS = Sets.newHashSet(' ', '\n', '\t', '\r');
-  private static Set<Character> CHAR_SEQ_END = Sets.newHashSet('<', '>', '"', '\'', ':', '=');
+  private static Set<Character> CHAR_SEQ_END = Sets.newHashSet('<', '>', '"', '\'', ':', '=', '/');
   private static ImmutableMap<String, Character> SPECIAL_CHARS = ImmutableMap.<String, Character>builder()
       .put("&amp;", '&')
       .put("&lt;", '<')

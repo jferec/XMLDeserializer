@@ -1,5 +1,7 @@
 package parser;
 
+import java.text.ParseException;
+
 public class XMLFile {
 
   private XMLNode root;
@@ -8,7 +10,9 @@ public class XMLFile {
     this.root = null;
   }
 
-  public void setRoot(XMLNode root) {
+  public void setRoot(XMLNode node) {
+    XMLNode root = new XMLNode();
+    root.addChild(node);
     this.root = root;
   }
 
@@ -16,18 +20,8 @@ public class XMLFile {
     return root;
   }
 
-  public XMLNode forPath(String path) {
-    XMLNode visitor = root;
-    String[] edges = path.split("\\.");
-    if (!root.getName().equals(edges[0])) {
-      return null;
-    }
-    for (int i = 1; i < edges.length; i++) {
-      visitor = visitor.getChildren().get(i);
-      if (visitor == null) {
-        return null;
-      }
-    }
-    return visitor;
+  public String find(String path) throws ParseException {
+    return root.find(path);
   }
+
 }

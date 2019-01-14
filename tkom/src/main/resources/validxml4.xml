@@ -1,7 +1,16 @@
+<?xml version="1.0"?>
 <a>
   <b>
+    <el attr="abc"></el>
     <el></el>
-    <el></el>
-    <el></el>
+  </b>
+  <b>
+    <gamma>raz</gamma>
+  </b>
+  <b>
+    raz
+    <alfa/>
+    dwa
+    <beta/>
   </b>
 </a>
