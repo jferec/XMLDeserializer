@@ -1,8 +1,8 @@
 package parser;
 
-import config.PathLexer;
-import config.PathToken;
-import config.PathTokenType;
+import config.path.PathLexer;
+import config.path.PathToken;
+import config.path.PathTokenType;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,8 +30,24 @@ public class XMLNode {
     return children;
   }
 
+  public List<XMLNode> getChildren(String name) {
+    return children.get(name);
+  }
+
   public Map<String, XMLAttribute> getAttributes() {
     return attributes;
+  }
+
+  public XMLAttribute getAttribute(String name) {
+    return attributes.get(name);
+  }
+
+  public List<XMLNode> getAllChildren() {
+    List<XMLNode> allChildren = new ArrayList<>();
+    for (ArrayList<XMLNode> nodes : children.values()) {
+      allChildren.addAll(nodes);
+    }
+    return allChildren;
   }
 
   public XMLNode setAttributes(List<XMLAttribute> attributes) {
@@ -72,19 +88,17 @@ public class XMLNode {
     XMLNode visitor = this;
     while (curr != null && curr.getType().equals(PathTokenType.Node)) {
       XMLNode xmlNode = visitor
-          .getChildren()
-          .get(curr.getNodeName())
+          .getChildren(curr.getNodeName())
           .get(curr.getNodeIndex());
       visitor = xmlNode;
       curr = lexer.getNextToken();
     }
     if (curr == null) {
-      throw new ParseException("Value or Attribute expected at the end", 0);
+      throw new ParseException("Value or ObjectField expected at the end", 0);
     }
     if (curr.getType().equals(PathTokenType.Attribute)) {
       XMLNode xmlNode = visitor
-          .getChildren()
-          .get(curr.getNodeName())
+          .getChildren(curr.getNodeName())
           .get(curr.getNodeIndex());
       if (lexer.isEmpty()) {
         return xmlNode
@@ -94,8 +108,7 @@ public class XMLNode {
       }
     } else {
       XMLNode xmlNode = visitor
-          .getChildren()
-          .get(curr.getNodeName())
+          .getChildren(curr.getNodeName())
           .get(curr.getNodeIndex());
       if (lexer.isEmpty()) {
         return xmlNode

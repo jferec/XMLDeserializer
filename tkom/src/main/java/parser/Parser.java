@@ -14,7 +14,7 @@ public class Parser {
   private XMLFile xmlFile = new XMLFile();
   private Token token = null;
 
-  Parser(Lexer lexer) {
+  public Parser(Lexer lexer) {
     this.lexer = lexer;
   }
 
@@ -56,19 +56,19 @@ public class Parser {
   private XMLAttribute parseAttribute() throws IOException, XMLParseException {
     if (!tokenTypeEquals(TokenType.CharSequence)) {
       throw new XMLParseException(
-          String.format("Attribute name expected at %s", lexer.getPosition()));
+          String.format("ObjectField name expected at %s", lexer.getPosition()));
     }
     String attributeName = token.getValue();
     getNextTokenAndSkipWhiteSpace();
     if (!tokenTypeEquals(TokenType.Equals)) {
       throw new XMLParseException(
-          String.format("Attribute %s has no \'=\' sign after it's name at %s",
+          String.format("ObjectField %s has no \'=\' sign after it's name at %s",
               attributeName, lexer.getPosition()));
     }
     getNextTokenAndSkipWhiteSpace();
     if (!tokenTypeEquals(TokenType.String)) {
       throw new XMLParseException(
-          String.format("Attribute value expected after '=' sign at %s", lexer.getPosition()));
+          String.format("ObjectField value expected after '=' sign at %s", lexer.getPosition()));
     }
     String attributeValue = token.getValue();
     getNextTokenAndSkipWhiteSpace();

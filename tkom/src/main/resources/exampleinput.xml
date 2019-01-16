@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<alfa attr="attr">20
+  <beta>2.0
+    <gamma attr1="name" attr2="attr2"/>
+    4.3
+  </beta>
+  456
+  <beta>
+    422
+    <fi>fivalue</fi>
+  </beta>
+  40
+</alfa>

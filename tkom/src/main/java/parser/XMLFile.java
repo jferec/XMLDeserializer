@@ -17,7 +17,7 @@ public class XMLFile {
   }
 
   public XMLNode getRoot() {
-    return root;
+    return root.getAllChildren().get(0);
   }
 
   public String find(String path) throws ParseException {

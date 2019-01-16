@@ -1,4 +1,4 @@
-package config;
+package config.path;
 
 import static com.google.common.base.Ascii.EOT;
 

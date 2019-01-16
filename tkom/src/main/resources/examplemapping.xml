@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<Machine type='object'>
+  <name type='value' path='alfa.beta[0].gamma:attr1'/>
+  <height type='value' path='alfa(0)'/>
+  <movement type='object'>
+    <minSpeed type='value' path='alfa.beta[1](0)'/>
+    <maxSpeed type='value' path='alfa(1)'/>
+    <tags type='array'>
+      <element>
+        <element type='value' path='alfa.beta[0].gamma:attr1'/>
+      </element>
+      <element>
+        <element type='value' path='alfa.beta[1].fi(0)'/>
+      </element>
+    </tags>
+    <temperatures type='array'>
+      <element>
+        <temperature type='object'>
+          <min type='value' path='alfa[0](0)'/>
+          <max type='value' path='alfa[0](2)'/>
+          <current type='value' path='alfa.beta[0](0)'/>
+        </temperature>
+      </element>
+      <element>
+        <temp type='object'>
+          <min type='value' path='alfa[0](0)'/>
+          <max type='value' path='alfa[0](0)'/>
+          <current type='value' path='alfa.beta[0](0)'/>
+        </temp>
+      </element>
+    </temperatures>
+  </movement>
+</Machine>

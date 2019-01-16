@@ -2,6 +2,9 @@ package config;
 
 import static org.junit.Assert.assertEquals;
 
+import config.path.PathLexer;
+import config.path.PathToken;
+import config.path.PathTokenType;
 import java.text.ParseException;
 import org.junit.Test;
 

@@ -2,11 +2,12 @@ package config.config_example;
 
 import config.Config;
 import config.ConfigFactory;
+import java.io.IOException;
 
 public class ConfigFactoryExample implements ConfigFactory {
 
   @Override
-  public Config getConfigInstanceByName(String className) throws NoSuchFieldException {
+  public Config getConfigInstanceByName(String className) {
     switch (className) {
       case "Machine":
         return new Machine();
@@ -18,8 +19,11 @@ public class ConfigFactoryExample implements ConfigFactory {
         return new Movement();
 
       default:
-        throw new NoSuchFieldException(
-            String.format("Failed to find a constructor for %s", className));
+        return null;
     }
+  }
+
+  public static void generateExampleConfig(String path) throws IOException {
+
   }
 }

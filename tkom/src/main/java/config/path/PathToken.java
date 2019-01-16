@@ -1,4 +1,4 @@
-package config;
+package config.path;
 
 public class PathToken {
 
