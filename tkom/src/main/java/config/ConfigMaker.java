@@ -52,7 +52,7 @@ public class ConfigMaker {
     return output;
   }
 
-  Object traverse(Object object, XMLNode node) throws Exception {
+  private Object traverse(Object object, XMLNode node) throws Exception {
     for (XMLNode child : node.getAllChildren()) {
       switch (child.getAttribute(TYPE).getValue()) {
         case VALUE_TYPE:

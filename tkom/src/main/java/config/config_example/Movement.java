@@ -4,10 +4,10 @@ import config.model.Config;
 
 public class Movement implements Config {
 
-  int minSpeed;
-  int maxSpeed;
-  String[] tags;
-  Temperature[] temperatures;
+  private int minSpeed;
+  private int maxSpeed;
+  private String[] tags;
+  private Temperature[] temperatures;
 
   public int getMinSpeed() {
     return minSpeed;

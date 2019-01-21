@@ -10,7 +10,7 @@ public class ConfigValue extends Field {
   }
 
   @Override
-  public Field addChild(Field field) throws NoSuchMethodException {
+  public Field setChild(Field field) throws NoSuchMethodException {
     throw new NoSuchMethodException("Adding children to ConfigValue object is illegal");
   }
 

@@ -10,6 +10,7 @@ public class ConfigArray extends Field {
   public String toString() {
     StringBuilder content = new StringBuilder()
         .append(String.format("<%s type='array'>\n", name));
+
     for (Field child : children) {
       content.append("<element>")
           .append('\t')

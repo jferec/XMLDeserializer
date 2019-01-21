@@ -2,7 +2,6 @@ package config.config_example;
 
 import config.model.Config;
 import config.model.ConfigFactory;
-import java.io.IOException;
 
 public class ConfigFactoryExample implements ConfigFactory {
 
@@ -23,7 +22,4 @@ public class ConfigFactoryExample implements ConfigFactory {
     }
   }
 
-  public static void generateExampleConfig(String path) throws IOException {
-
-  }
 }

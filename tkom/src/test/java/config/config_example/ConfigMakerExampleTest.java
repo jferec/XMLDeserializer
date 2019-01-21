@@ -23,7 +23,6 @@ public class ConfigMakerExampleTest {
   public void runConfigMaker()
       throws Exception {
     prepareMappingFile();
-    ConfigFactoryExample configFactory = new ConfigFactoryExample();
     ConfigMaker maker = new ConfigMaker(INPUT_FILE_PATH, MAPPING_FILE_PATH,
         new ConfigFactoryExample());
     Object config = maker.getConfig();
@@ -52,22 +51,22 @@ public class ConfigMakerExampleTest {
   }
 
 
-  public void prepareMappingFile() throws IOException, NoSuchMethodException {
+  private void prepareMappingFile() throws IOException, NoSuchMethodException {
     ConfigFile file = ConfigFile.root("Machine")
         .setAttribute("name", "alfa.beta[0].gamma:attr1")
         .setAttribute("height", "alfa(0)")
-        .addObject(new ConfigObject("movement")
+        .setChild(new ConfigObject("movement")
             .setAttribute("minSpeed", "alfa.beta[1](0)")
             .setAttribute("maxSpeed", "alfa(1)")
-            .addArray(new ConfigArray("tags")
-                .addChild(new ConfigValue("element", "alfa.beta[0].gamma:attr1"))
-                .addChild(new ConfigValue("element", "alfa.beta[1].fi(0)")))
-            .addArray(new ConfigArray("temperatures")
-                .addObject(new ConfigObject("temperature")
+            .setChild(new ConfigArray("tags")
+                .setChild(new ConfigValue("element", "alfa.beta[0].gamma:attr1"))
+                .setChild(new ConfigValue("element", "alfa.beta[1].fi(0)")))
+            .setChild(new ConfigArray("temperatures")
+                .setChild(new ConfigObject("temperature")
                     .setAttribute("min", "alfa[0](0)")
                     .setAttribute("max", "alfa[0](2)")
                     .setAttribute("current", "alfa.beta[0](0)"))
-                .addObject(new ConfigObject("temp")
+                .setChild(new ConfigObject("temp")
                     .setAttribute("min", "alfa[0](0)")
                     .setAttribute("max", "alfa[0](0)")
                     .setAttribute("current", "alfa.beta[0](0)"))))

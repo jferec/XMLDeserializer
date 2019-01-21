@@ -11,18 +11,8 @@ public abstract class Field {
     this.name = name;
   }
 
-  public Field addChild(Field child) throws NoSuchMethodException {
+  public Field setChild(Field child) throws NoSuchMethodException {
     children.add(child);
-    return this;
-  }
-
-  public Field addObject(Field object) {
-    children.add(object);
-    return this;
-  }
-
-  public Field addArray(Field array) {
-    children.add(array);
     return this;
   }
 
