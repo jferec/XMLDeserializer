@@ -1,11 +1,14 @@
 package config;
 
 import com.google.common.collect.ImmutableSet;
+import config.model.Config;
+import config.model.ConfigFactory;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Optional;
 import javax.management.modelmbean.XMLParseException;
 import lexer.Lexer;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -60,14 +63,16 @@ public class ConfigMaker {
           traverse(instance, node.getChildren(child.getName()).get(0));
           break;
         case ARRAY_TYPE:
-          //todo, jesli to obiekt -> tworzysz instance tego obiektu i puszczasz traverse
-          //todo, jesli to atrybut -> setujesz musisz stworzyc obiekt i tak ;/ (ODCZYTUJESZ Z TYPU czy value czy object !!!)
-          //ODCZYTUJESZ TYP Z ARRAYA, TWORZYSZ INSTANCJE OBIEKTU, PATRZYSZ CZY OBIEKT CZY AKTRYBUT I LECISZ 1) LUB 2)
           List<XMLNode> children = child.getChildren(ARRAY_ELEMENT);
-          Field arrayFiled = FieldUtils.getField(object.getClass(), child.getName(), true);
+          Optional<Field> arrayFiled = getField(object, child.getName());
+          if (!arrayFiled.isPresent()) {
+            throw new NoSuchFieldException(String
+                .format("Array field %s was not found in %s class", child.getName(),
+                    object.getClass().getSimpleName()));
+          }
           Object array = Array
-              .newInstance(arrayFiled.getType().getComponentType(), children.size());
-          FieldUtils.writeDeclaredField(object, child.getName(), array, true);
+              .newInstance(arrayFiled.get().getType().getComponentType(), children.size());
+          writeField(object, child.getName(), array);
           if (VALUE_TYPES.contains(array.getClass().getComponentType().getSimpleName())) {
             addValuesToArray(array, children);
           } else {
@@ -93,19 +98,30 @@ public class ConfigMaker {
     return factory.getConfigInstanceByName(mapperFile.getRoot().getName());
   }
 
-  void setValue(Object object, XMLNode child) throws ParseException, IllegalAccessException {
+  void setValue(Object object, XMLNode child)
+      throws Exception {
     String path = child.getAttribute("path").getValue();
     String fieldName = child.getName();
     String value = inputFile.find(path);
-    Field field = FieldUtils.getDeclaredField(object.getClass(), fieldName, true);
-    Object toWrite = ConfigFactory.mapType(field.getType().getSimpleName(), value);
-    FieldUtils.writeDeclaredField(object, fieldName, toWrite, true);
+    Optional<Field> field = getField(object, fieldName);
+    if (!field.isPresent()) {
+      throw new NoSuchFieldException(String
+          .format("Value field %s was not found in %s class", child.getName(),
+              object.getClass().getSimpleName()));
+    }
+    Object toWrite = ConfigFactory.mapType(field.get().getType().getSimpleName(), value);
+    writeField(object, fieldName, toWrite);
   }
 
   Object createAndAssignObject(Object object, XMLNode child) throws Exception {
-    Field field = FieldUtils.getField(object.getClass(), child.getName(), true);
-    Object result = factory.getConfigInstanceByName(field.getType().getSimpleName());
-    FieldUtils.writeDeclaredField(object, field.getName(), result, true);
+    Optional<Field> field = getField(object, child.getName());
+    if (!field.isPresent()) {
+      throw new NoSuchFieldException(String
+          .format("Object field %s was not found in %s class", child.getName(),
+              object.getClass().getSimpleName()));
+    }
+    Object result = factory.getConfigInstanceByName(field.get().getType().getSimpleName());
+    writeField(object, field.get().getName(), result);
     return result;
   }
 
@@ -118,6 +134,30 @@ public class ConfigMaker {
       Object element = ConfigFactory.mapType(typeName, value);
       Array.set(array, i, element);
     }
+  }
+
+  private Optional<Field> getField(Object object, String fieldName) throws Exception {
+    try {
+      Field field = FieldUtils.getField(object.getClass(), fieldName, true);
+      if (field == null) {
+        return Optional.empty();
+      }
+      return Optional.of(field);
+    } catch (Exception e) {
+      throw new Exception(String.format("Failed to get the %s field in %s object.", fieldName,
+          object.getClass().getSimpleName()));
+    }
+  }
+
+  private void writeField(Object object, String fieldName, Object toWrite)
+      throws NoSuchFieldException {
+    try {
+      FieldUtils.writeDeclaredField(object, fieldName, toWrite, true);
+    } catch (Exception e) {
+      throw new NoSuchFieldException(
+          String.format("Failed to write object to %s field %s", fieldName, e.getMessage()));
+    }
+
   }
 
 }

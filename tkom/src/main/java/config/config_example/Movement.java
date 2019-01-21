@@ -1,6 +1,6 @@
 package config.config_example;
 
-import config.Config;
+import config.model.Config;
 
 public class Movement implements Config {
 
@@ -19,6 +19,14 @@ public class Movement implements Config {
 
   public int getMaxSpeed() {
     return maxSpeed;
+  }
+
+  public Temperature[] getTemperatures() {
+    return temperatures;
+  }
+
+  public void setTemperatures(Temperature[] temperatures) {
+    this.temperatures = temperatures;
   }
 
   public void setMaxSpeed(int maxSpeed) {

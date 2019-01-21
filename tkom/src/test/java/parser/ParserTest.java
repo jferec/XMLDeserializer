@@ -27,13 +27,9 @@ public class ParserTest {
     XMLFile result = parser.run();
     assertNotNull(result);
     XMLNode root = result.getRoot();
-    assertEquals(1, root.getChildren().size());
-    ArrayList<XMLNode> alfaNodes = root.getChildren().get("alfa");
-    assertEquals(1, alfaNodes.size());
-    XMLNode xmlNode = alfaNodes.get(0);
-    assertEquals(2, xmlNode.getChildren().size());
-    ArrayList<XMLNode> betaNodes = xmlNode.getChildren().get("beta");
-    ArrayList<XMLNode> gammaNodes = xmlNode.getChildren().get("gamma");
+    assertEquals(2, root.getChildren().size());
+    ArrayList<XMLNode> betaNodes = root.getChildren().get("beta");
+    ArrayList<XMLNode> gammaNodes = root.getChildren().get("gamma");
     assertEquals(1, betaNodes.size());
     assertEquals(1, gammaNodes.size());
     XMLNode beta = betaNodes.get(0);
@@ -54,28 +50,28 @@ public class ParserTest {
   }
 
   @Test
-  public void tagNotClosed() throws IOException, XMLParseException {
+  public void tagNotClosed() {
     Lexer lexer = Lexer.of("src/main/resources/invalidxml.xml");
     Parser parser = new Parser(lexer);
     assertThrows(XMLParseException.class, parser::run);
   }
 
   @Test
-  public void missingProlog() throws IOException, XMLParseException {
+  public void missingProlog() {
     Lexer lexer = Lexer.of("src/main/resources/invalidxml2.xml");
     Parser parser = new Parser(lexer);
     assertThrows(XMLParseException.class, parser::run);
   }
 
   @Test
-  public void tagNameStartsWithSpace() throws IOException, XMLParseException {
+  public void tagNameStartsWithSpace() {
     Lexer lexer = Lexer.of("src/main/resources/invalidxml3.xml");
     Parser parser = new Parser(lexer);
     assertThrows(XMLParseException.class, parser::run);
   }
 
   @Test
-  public void openingTagAfterClosingRoot() throws IOException, XMLParseException {
+  public void openingTagAfterClosingRoot() {
     Lexer lexer = Lexer.of("src/main/resources/invalidxml4.xml");
     Parser parser = new Parser(lexer);
     assertThrows(XMLParseException.class, parser::run);

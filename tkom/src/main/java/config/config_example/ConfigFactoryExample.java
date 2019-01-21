@@ -1,7 +1,7 @@
 package config.config_example;
 
-import config.Config;
-import config.ConfigFactory;
+import config.model.Config;
+import config.model.ConfigFactory;
 import java.io.IOException;
 
 public class ConfigFactoryExample implements ConfigFactory {

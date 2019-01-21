@@ -1,6 +1,6 @@
 package config.config_example;
 
-import config.Config;
+import config.model.Config;
 
 public class Temperature implements Config {
 

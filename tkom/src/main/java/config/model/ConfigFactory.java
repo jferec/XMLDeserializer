@@ -1,4 +1,4 @@
-package config;
+package config.model;
 
 import java.text.ParseException;
 

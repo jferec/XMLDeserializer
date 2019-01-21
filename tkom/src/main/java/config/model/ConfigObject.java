@@ -1,4 +1,4 @@
-package config;
+package config.model;
 
 public class ConfigObject extends Field {
 
