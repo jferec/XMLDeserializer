@@ -44,10 +44,10 @@ public class ConfigMakerExampleTest {
     Temperature two = temperatures[1];
     assertEquals(20, one.getMin());
     assertEquals(40, one.getMax());
-    assertEquals(2.0, one.getCurrent(), 0.01f);
+    assertEquals(2.0, one.getCurrent(), 0.001f);
     assertEquals(20, two.getMin());
     assertEquals(20, two.getMax());
-    assertEquals(2.0, two.getCurrent(), 0.01f);
+    assertEquals(2.0, two.getCurrent(), 0.001f);
   }
 
 

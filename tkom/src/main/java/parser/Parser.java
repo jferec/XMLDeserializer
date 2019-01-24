@@ -106,6 +106,10 @@ public class Parser {
    * Current token is '<'
    */
   private XMLNode parseOpeningTag() throws IOException, XMLParseException {
+    if (!tokenTypeEquals(TokenType.OpeningTagBegin)) {
+      throw new XMLParseException(
+          String.format("Expected '<' at the beginning of open tag at %s", lexer.getPosition()));
+    }
     getNextToken();
     if (!tokenTypeEquals(TokenType.CharSequence)) {
       throw new XMLParseException(
